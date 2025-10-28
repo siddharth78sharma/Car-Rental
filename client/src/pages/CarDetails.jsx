@@ -5,36 +5,40 @@ import Loader from '../components/Loader';
 import { useAppContext } from '../context/AppContext';
 import toast from 'react-hot-toast';
 import CarCard from '../components/CarCard';
-import {motion} from 'motion/react'
+import {motion} from 'framer-motion' // Using framer-motion (standard library)
 
 const CarDetails = () => {
     const { id } = useParams();
-    const { items, axios, pickupDate, setPickupDate, returnDate, setReturnDate } = useAppContext();
+    // Destructure everything you need from context
+    const { items, axios, pickupDate, setPickupDate, returnDate, setReturnDate } = useAppContext(); 
     const navigate = useNavigate();
     const [car, setCar] = useState(null);
     const [relatedItems, setRelatedItems] = useState([]);
     const currency = import.meta.env.VITE_CURRENCY;
 
-    const RECOMMENDED_COUNT = 4; // Adjust this number as needed
+    const RECOMMENDED_COUNT = 4;
 
-    const handleSubmit = async (e) => {
+    // ⭐ CRITICAL CHANGE: Redirect to BookingDetails page
+    const handleSubmit = (e) => {
         e.preventDefault();
-        try {
-            const { data } = await axios.post('/api/bookings/create', {
-                car: id,
-                pickupDate,
-                returnDate,
-            });
-
-            if (data.success) {
-                toast.success(data.message);
-                navigate('/my-bookings');
-            } else {
-                toast.error(data.message);
-            }
-        } catch (error) {
-            toast.error(error.message);
+        
+        // 1. Basic Validation
+        if (!pickupDate || !returnDate) {
+            toast.error("Please select both pickup and return dates.");
+            return;
         }
+
+        // 2. Navigate to the new booking confirmation page
+        // Pass item ID via URL params and dates via location state
+        navigate(`/booking-details/${id}`, {
+            state: {
+                pickupDate: pickupDate,
+                returnDate: returnDate,
+                // Optionally pass item price and name to display immediately
+                pricePerDay: car.pricePerDay,
+                name: car.name,
+            }
+        });
     };
 
     useEffect(() => {
@@ -58,7 +62,9 @@ const CarDetails = () => {
                             item._id !== currentItem._id &&
                             item.type === currentItem.type
                     );
-                    recommended = [...new Set([...recommended, ...typeItems])];
+                    // Use a Set to ensure unique items after merging
+                    const uniqueItems = [...new Set([...recommended, ...typeItems])];
+                    recommended = uniqueItems;
                 }
 
                 // Step 3: If we still don't have enough, fill with other items
@@ -67,10 +73,10 @@ const CarDetails = () => {
                         (item) => item._id !== currentItem._id
                     );
                     
-                    // Add other items until the count is reached or no more items are left
                     let finalItems = [...recommended];
                     let i = 0;
                     while (finalItems.length < RECOMMENDED_COUNT && i < otherItems.length) {
+                        // Check if the item is already in the list before pushing
                         if (!finalItems.some(recItem => recItem._id === otherItems[i]._id)) {
                              finalItems.push(otherItems[i]);
                         }
@@ -78,13 +84,14 @@ const CarDetails = () => {
                     }
                     setRelatedItems(finalItems);
                 } else {
-                    setRelatedItems(recommended);
+                    // Truncate to the recommended count if we gathered more than needed in step 1/2
+                    setRelatedItems(recommended.slice(0, RECOMMENDED_COUNT));
                 }
             }
         }
     }, [items, id]);
 
-    // Helper function to get details based on item type
+    // Helper function to get details based on item type (unchanged)
     const getItemDetails = (item) => {
         switch (item.type) {
             case 'Car':
@@ -109,19 +116,16 @@ const CarDetails = () => {
             case 'Furniture':
                 return [
                     { icon: assets.furniture_icon, text: item.category || '' },
-                   // { icon: assets.build_icon, text: item.features || '' },
                     { icon: assets.location_icon, text: item.location || '' },
                 ];
             case 'Electronics':
                 return [
                     { icon: assets.electronics_icon, text: item.category || '' },
-                    //{ icon: assets.build_icon, text: item.features || '' },
                     { icon: assets.location_icon, text: item.location || '' },
                 ];
             case 'Instruments':
                 return [
                     { icon: assets.instrument_icon, text: item.category || '' },
-                    //{ icon: assets.build_icon, text: item.features || '' },
                     { icon: assets.location_icon, text: item.location || '' },
                 ];
             default:
@@ -140,12 +144,12 @@ const CarDetails = () => {
             </button>
 
             <div className='grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12'>
-                {/* Left: item image & details */}
+                {/* Left: item image & details (Content remains the same) */}
                 <motion.div initial={{y: 30, opacity: 0}} animate={{y: 0, opacity: 1}} transition={{duration: 0.6}} className='lg:col-span-2'>
                     
                     <motion.img initial={{ scale: 0.98, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{duration: 0.5}} src={car.image} alt='' className='w-full h-auto md:max-h-100 object-cover rounded-xl mb-6 shadow-md' />
                     
-                    <motion.div className='space-y-6' initial={{ opacity: 0}} animate={{ opacity: 1}} transition={{duration: 0., delay: 0.2 }}>
+                    <motion.div className='space-y-6' initial={{ opacity: 0}} animate={{ opacity: 1}} transition={{duration: 0.3, delay: 0.2 }}>
                         <div>
                             <h1 className='text-3xl font-bold'>
                                 {car.name || (car.brand && car.model ? `${car.brand} ${car.model}` : car.brand) || ''}
@@ -188,8 +192,14 @@ const CarDetails = () => {
                     </motion.div>
                 </motion.div>
 
-                {/* Right: Booking Form */}
-                <motion.form initial={{y: 30, opacity: 0}} animate={{y: 0, opacity: 1}} transition={{duration: 0.6, delay: 0.3 }} onSubmit={handleSubmit} className='shadow-lg h-max sticky top-18 rounded-xl p-6 space-y-6 text-gray-500'>
+                {/* Right: Booking Form (Form content remains the same) */}
+                <motion.form 
+                    initial={{y: 30, opacity: 0}} 
+                    animate={{y: 0, opacity: 1}} 
+                    transition={{duration: 0.6, delay: 0.3 }} 
+                    onSubmit={handleSubmit} // This now redirects!
+                    className='shadow-lg h-max sticky top-18 rounded-xl p-6 space-y-6 text-gray-500'
+                >
                     <p className='flex items-center justify-between text-2xl text-gary-800 font-semibold'>
                         {currency}
                         {car.pricePerDay}
@@ -223,15 +233,18 @@ const CarDetails = () => {
                         />
                     </div>
 
-                    <button className='w-full bg-primary hover:bg-primary-dull trasition-all py-3 font-medium text-white rounded-xl cursor-pointer'>
-                        Book Now
+                    <button 
+                        type="submit" // Ensure button is type="submit"
+                        className='w-full bg-primary hover:bg-primary-dull trasition-all py-3 font-medium text-white rounded-xl cursor-pointer'
+                    >
+                        Proceed to Booking
                     </button>
 
                     <p className='text-center text-sm'>NO credit card is required to reserve</p>
                 </motion.form>
             </div>
             
-            {/* Related Items Section */}
+            {/* Related Items Section (Unchanged) */}
             {relatedItems.length > 0 && (
                 <div className='my-16'>
                     <h2 className='text-2xl font-bold mb-6 text-center md:text-left'>You might also like...</h2>
@@ -249,12 +262,6 @@ const CarDetails = () => {
 };
 
 export default CarDetails;
-
-
-
-
-
-
 
 
 
@@ -381,19 +388,19 @@ export default CarDetails;
 //             case 'Furniture':
 //                 return [
 //                     { icon: assets.furniture_icon, text: item.category || '' },
-//                     { icon: assets.build_icon, text: item.features || '' },
+//                    // { icon: assets.build_icon, text: item.features || '' },
 //                     { icon: assets.location_icon, text: item.location || '' },
 //                 ];
 //             case 'Electronics':
 //                 return [
 //                     { icon: assets.electronics_icon, text: item.category || '' },
-//                     { icon: assets.build_icon, text: item.features || '' },
+//                     //{ icon: assets.build_icon, text: item.features || '' },
 //                     { icon: assets.location_icon, text: item.location || '' },
 //                 ];
 //             case 'Instruments':
 //                 return [
 //                     { icon: assets.instrument_icon, text: item.category || '' },
-//                     { icon: assets.build_icon, text: item.features || '' },
+//                     //{ icon: assets.build_icon, text: item.features || '' },
 //                     { icon: assets.location_icon, text: item.location || '' },
 //                 ];
 //             default:

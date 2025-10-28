@@ -122,7 +122,7 @@ const DashboardStats = () => {
             <div>
                 <p className="text-sm font-semibold opacity-80">{title}</p>
                 {/* Format revenue with a dollar sign */}
-                <h3 className="text-3xl font-bold mt-1">{title.includes("Revenue") ? `$${value.toLocaleString()}` : value.toLocaleString()}</h3>
+                <h3 className="text-3xl font-bold mt-1">{title.includes("Revenue") ? `₹${value.toLocaleString()}` : value.toLocaleString()}</h3>
             </div>
             {/* Render the icon component */}
             <div className="text-white text-4xl opacity-70">

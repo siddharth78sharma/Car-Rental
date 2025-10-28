@@ -131,15 +131,21 @@ const AdminVendors = () => {
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{vendor.email}</td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                                ${vendor.isVerified ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+
+                                           
+                                             ${vendor.isVerified ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>
                                                 {/* Adjusted logic to show correct badge */}
-                                                {vendor.isVerified ? 'Verified' : 'Unverified'}
+{/*                                                 {vendor.isVerified ? 'Verified' : 'Unverified'} */}
+                                                  {vendor.isVerified ? 'Unverified' : 'Verified'}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                             <select 
                                                 // Ensure the selected value is based on the current vendor's status, converted to string
-                                                value={vendor.isVerified ? 'true' : 'false'}
+
+                                               // value={vendor.isVerified ? 'true' : 'false'}
+                                                value={vendor.isVerified ? 'false' : 'true'}
+
                                                 // Convert the string value back to boolean for the API call
                                                 onChange={(e) => handleStatusChange(vendor._id, e.target.value === 'true')}
                                                 className="block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"

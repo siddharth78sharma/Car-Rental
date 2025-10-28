@@ -31,6 +31,9 @@ import AdminSettings from './pages/admin/AdminSettings';
 import Profile from './pages/Profile';
 import VendorSettings from './pages/owner/VendorSettings';
 import AdminReports from './pages/admin/AdminReports';
+import BookingDetails from './pages/BookingDetails';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 
 
 // Component to scroll to the top of the page on route change.
@@ -74,6 +77,11 @@ const App = () => {
                 <Route path='/privacy' element={<PrivacyPolicy />} />
                 <Route path='/contact-us' element={<ContactUs />} />
                 <Route path="/profile" element={<Profile />} />
+                <Route path="/booking-details/:itemId" element={<BookingDetails />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password/:token" element={<ResetPassword />} />
+
+
 
                 {/* Owner Dashboard Routes */}
                 <Route path='/owner' element={<Layout />}>
@@ -106,97 +114,3 @@ const App = () => {
 };
 
 export default App;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// import React, { useState, useEffect } from 'react' // Import useEffect
-// import { Route, Routes, useLocation } from 'react-router-dom' // Import useLocation
-// import Home from './pages/Home'
-// import CarDetails from './pages/CarDetails'
-// import Services from './pages/Services'
-// import MyBookings from './pages/MyBookings'
-// import Layout from './pages/owner/Layout'
-// import Dashboard from './pages/owner/Dashboard'
-// import AddCar from './pages/owner/AddCar'
-// import ManageCars from './pages/owner/ManageCars'
-// import ManageBookings from './pages/owner/ManageBookings'
-// import Login from './components/Login'
-// import { Toaster } from 'react-hot-toast'
-// import { useAppContext } from './context/AppContext'
-// import AboutUs from './pages/AboutUs'
-// import Help from './pages/Help'
-// import Terms from './pages/Terms'
-// import PrivacyPolicy from './pages/Policy'
-// import Profile from './pages/Profile'
-// import ContactUs from './pages/ContactUs'
-// import Navbar from './components/Navbar'
-// import Footer from './components/Footer'
-
-
-// // Define the ScrollToTop component here
-// const ScrollToTop = () => {
-//   const { pathname } = useLocation();
-
-//   useEffect(() => {
-//     window.scrollTo(0, 0);
-//   }, [pathname]);
-
-//   return null;
-// };
-
-// const App = () => {
-
-//   const {showLogin} = useAppContext()
-//   const isOwnerPath = useLocation().pathname.startsWith('/owner')
-
-
-//   return (
-//     <>
-//       <ScrollToTop />
-//       <Toaster />
-//       {showLogin && <Login/>}
-//     
-//       {!isOwnerPath && <Navbar/>}
-
-//       <Routes>
-//         <Route path='/' element={<Home/>}/>
-//         <Route path='/car-details/:id' element={<CarDetails/>}/>
-//         <Route path='/Services' element={<Services/>}/>
-//         <Route path='/my-bookings' element={<MyBookings/>}/>
-//         <Route path='/about' element={<AboutUs/>}/>
-//         <Route path='/help' element={<Help/>}/>
-//         <Route path='/terms' element={<Terms/>} />
-//         <Route path='/privacy' element={<PrivacyPolicy/>} />
-//         <Route path='/contact-us' element={<ContactUs/>} />
-//         <Route path="/profile" element={<Profile />} />
-//         
-//         <Route path='/owner' element={<Layout/>}>
-//           <Route index element={<Dashboard/>}/>
-//           <Route path="add-items" element={<AddCar/>}/>
-//           <Route path="manage-items" element={<ManageCars/>}/>
-//           <Route path="manage-bookings" element={<ManageBookings/>}/>
-//         </Route>
-//       </Routes>
-
-//       {!isOwnerPath && <Footer/>}
-//     </>
-//   )
-// }
-
-// export default App

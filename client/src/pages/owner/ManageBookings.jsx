@@ -300,7 +300,7 @@ const ManageBookings = () => {
                                 <td className='p-4 font-semibold text-gray-900 text-base whitespace-nowrap'>{currency}{booking.price}</td>
 
                                 <td className='p-4 text-gray-700 hidden md:table-cell text-sm whitespace-nowrap'>
-                                    <span className='bg-gray-100 px-3 py-1 rounded-full text-xs font-medium'>offline</span>
+                                    <span className='bg-gray-100 px-3 py-1 rounded-full text-xs font-medium'>Cash on</span>
                                 </td>
 
                                 <td className='p-4 text-sm whitespace-nowrap'>

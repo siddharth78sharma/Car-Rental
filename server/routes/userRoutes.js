@@ -1,5 +1,5 @@
 import express from "express";
-import { deleteAdminItem, getAdminItems, getCars, getItems, getUserData, loginUser, registerUser, getAdminOrders, updateAdminOrderStatus, getAdminUsers, updateAdminUserRole, getAdminVendors, updateVendorStatus, getUserProfile, updateVendorProfile, listAllPublicItems, becomeVendor, getAdminDashboardStats, getAdminDashboardGraphs } from "../controllers/userController.js";
+import { deleteAdminItem, getAdminItems, getCars, getItems, getUserData, loginUser, registerUser, getAdminOrders, updateAdminOrderStatus, getAdminUsers, updateAdminUserRole, getAdminVendors, updateVendorStatus, getUserProfile, updateVendorProfile, listAllPublicItems, becomeVendor, getAdminDashboardStats, getAdminDashboardGraphs, getVendorProfile, forgotPassword, resetPassword } from "../controllers/userController.js";
 import { admin, protect } from "../middleware/auth.js";
 
 const  userRouter = express.Router();
@@ -26,6 +26,10 @@ userRouter.get('/list-all-public', listAllPublicItems);
 userRouter.post('/become-vendor', protect, becomeVendor); 
 
 userRouter.get('/profile', protect, getUserProfile);
-userRouter.put('/owner/update-profile', protect,  updateVendorProfile);
+//userRouter.put('/owner/update-profile', protect,  updateVendorProfile);
+userRouter.get('/vendor-profile', protect, getVendorProfile);
+userRouter.put('/vendor-profile', protect, updateVendorProfile);
+userRouter.post('/forgot-password', forgotPassword);
+userRouter.post("/reset-password/:token", resetPassword);
 
 export default userRouter;

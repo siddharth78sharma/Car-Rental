@@ -1,150 +1,110 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAppContext } from '../../context/AppContext';
 import toast from 'react-hot-toast';
 
 const VendorSettings = () => {
-    const { axios, user, fetchUser } = useAppContext();
-    const [formData, setFormData] = useState({
-        name: '',
-        email: '',
-        phone: '',
-        bio: ''
-    });
-    const [loading, setLoading] = useState(true);
-    const [isSubmitting, setIsSubmitting] = useState(false);
+  const { user } = useAppContext();
 
-    useEffect(() => {
-        if (user) {
-            setFormData({
-                name: user.name || '',
-                email: user.email || '',
-                phone: user.phone || '',
-                bio: user.bio || ''
-            });
-            setLoading(false);
-        }
-    }, [user]);
+  const [darkMode, setDarkMode] = useState(false);
+  const [notifications, setNotifications] = useState(true);
+  const [autoLogin, setAutoLogin] = useState(false);
 
-    const handleChange = (e) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        });
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setIsSubmitting(true);
-        try {
-            const { data } = await axios.put('/api/owner/update-profile', formData);
-            if (data.success) {
-                toast.success(data.message);
-                // Re-fetch user data to update the global state
-                fetchUser(); 
-            } else {
-                toast.error(data.message);
-            }
-        } catch (error) {
-            toast.error("Failed to update profile.");
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
-
-    if (loading) {
-        return <div className="p-8 text-center">Loading settings...</div>;
+  // Save preferences locally in browser storage
+  useEffect(() => {
+    const savedSettings = JSON.parse(localStorage.getItem('vendorSettings'));
+    if (savedSettings) {
+      setDarkMode(savedSettings.darkMode);
+      setNotifications(savedSettings.notifications);
+      setAutoLogin(savedSettings.autoLogin);
     }
+  }, []);
 
-    return (
-        <div className="p-4 sm:p-6 lg:p-8">
-            <h1 className="text-3xl font-bold text-gray-800 mb-8">Vendor Settings</h1>
-            <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-3xl mx-auto">
-                <form onSubmit={handleSubmit}>
-                    <div className="space-y-6">
-                        <div>
-                            <label htmlFor="name" className="block text-sm font-medium text-gray-700">Name</label>
-                            <div className="mt-1">
-                                <input
-                                    type="text"
-                                    name="name"
-                                    id="name"
-                                    value={formData.name}
-                                    onChange={handleChange}
-                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"
-                                />
-                            </div>
-                        </div>
+  const handleSave = () => {
+    const settings = { darkMode, notifications, autoLogin };
+    localStorage.setItem('vendorSettings', JSON.stringify(settings));
+    toast.success('Settings saved successfully!');
+  };
 
-                        <div>
-                            <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
-                            <div className="mt-1">
-                                <input
-                                    type="email"
-                                    name="email"
-                                    id="email"
-                                    value={formData.email}
-                                    onChange={handleChange}
-                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"
-                                />
-                            </div>
-                        </div>
+  const handleReset = () => {
+    setDarkMode(false);
+    setNotifications(true);
+    setAutoLogin(false);
+    localStorage.removeItem('vendorSettings');
+    toast.success('Settings reset to default.');
+  };
 
-                        <div>
-                            <label htmlFor="phone" className="block text-sm font-medium text-gray-700">Phone Number</label>
-                            <div className="mt-1">
-                                <input
-                                    type="tel"
-                                    name="phone"
-                                    id="phone"
-                                    value={formData.phone}
-                                    onChange={handleChange}
-                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"
-                                />
-                            </div>
-                        </div>
+  return (
+    <div className="p-4 sm:p-6 lg:p-8">
+      <h1 className="text-3xl font-bold text-gray-800 mb-8">Settings</h1>
 
-                        <div>
-                            <label htmlFor="location" className="block text-sm font-medium text-gray-700">Location</label>
-                            <div className="mt-1">
-                                <input
-                                    type="text"
-                                    name="location"
-                                    id="location"
-                                    value={formData.location}
-                                    onChange={handleChange}
-                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"
-                                />
-                            </div>
-                        </div>
-                        
-                        <div>
-                            <label htmlFor="bio" className="block text-sm font-medium text-gray-700">Vendor Bio</label>
-                            <div className="mt-1">
-                                <textarea
-                                    id="bio"
-                                    name="bio"
-                                    rows="3"
-                                    value={formData.bio}
-                                    onChange={handleChange}
-                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"
-                                />
-                            </div>
-                        </div>
-                    </div>
+      <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-3xl mx-auto space-y-8">
+        {/* Account Overview */}
+        <section>
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">Account Information</h2>
+          <p className="text-gray-600"><strong>Name:</strong> {user?.name || 'N/A'}</p>
+          <p className="text-gray-600"><strong>Email:</strong> {user?.email || 'N/A'}</p>
+          <p className="text-gray-600"><strong>Phone:</strong> {user?.phone || 'Not provided'}</p>
+        </section>
 
-                    <div className="mt-8">
-                        <button
-                            type="submit"
-                            disabled={isSubmitting}
-                            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            {isSubmitting ? 'Saving...' : 'Save Changes'}
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    );
+        {/* Preferences */}
+        <section>
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">Preferences</h2>
+
+          <div className="flex items-center justify-between py-2">
+            <span className="text-gray-700">Dark Mode</span>
+            <button
+              onClick={() => setDarkMode(!darkMode)}
+              className={`px-4 py-1 rounded-full font-medium text-sm ${
+                darkMode ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700'
+              }`}
+            >
+              {darkMode ? 'On' : 'Off'}
+            </button>
+          </div>
+
+          <div className="flex items-center justify-between py-2">
+            <span className="text-gray-700">Email Notifications</span>
+            <button
+              onClick={() => setNotifications(!notifications)}
+              className={`px-4 py-1 rounded-full font-medium text-sm ${
+                notifications ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700'
+              }`}
+            >
+              {notifications ? 'On' : 'Off'}
+            </button>
+          </div>
+
+          <div className="flex items-center justify-between py-2">
+            <span className="text-gray-700">Auto Login</span>
+            <button
+              onClick={() => setAutoLogin(!autoLogin)}
+              className={`px-4 py-1 rounded-full font-medium text-sm ${
+                autoLogin ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700'
+              }`}
+            >
+              {autoLogin ? 'On' : 'Off'}
+            </button>
+          </div>
+        </section>
+
+        {/* Actions */}
+        <section className="flex flex-col sm:flex-row gap-4">
+          <button
+            onClick={handleSave}
+            className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg transition"
+          >
+            Save Changes
+          </button>
+          <button
+            onClick={handleReset}
+            className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-4 rounded-lg transition"
+          >
+            Reset to Default
+          </button>
+        </section>
+      </div>
+    </div>
+  );
 };
 
 export default VendorSettings;

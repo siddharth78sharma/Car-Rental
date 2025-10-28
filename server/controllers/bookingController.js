@@ -36,11 +36,41 @@ export const checkAvailabilityOfCar = async ( req, res )=>{
     }
 }
 
-// API to create Booking
+// // API to create Booking
+// export const createBooking = async (req, res)=>{
+//     try {
+//         const {_id} = req.user;
+//         const {car, pickupDate, returnDate} = req.body;
+
+//         const isAvailable = await checkAvailability(car, pickupDate, returnDate)
+//         if(!isAvailable){
+//             return res.json({success: false, message: "Item is not available"})
+//         }
+        
+//         const carData = await Car.findById(car)
+        
+//         // Calculate price based on pickupdate and returndate 
+//         const picked = new Date(pickupDate);
+//         const returned = new Date(returnDate);
+//         const noOfDays = Math.ceil((returned - picked) / (1000 * 60 * 60 * 24))
+//         const price = carData.pricePerDay * noOfDays;
+
+//         await Booking.create({car, owner: carData.owner, user: _id, pickupDate, returnDate, price})
+        
+//         res.json({success: true, message: "Booking Created"})
+
+//     } catch (error) {
+//         console.log(error.message);
+//         res.json({success: false, message: error.message})
+//     }
+// }
+
+// API to create Booking (Updated to accept paymentMethod)
 export const createBooking = async (req, res)=>{
     try {
         const {_id} = req.user;
-        const {car, pickupDate, returnDate} = req.body;
+        // ⭐ ADDED: paymentMethod
+        const {car, pickupDate, returnDate, paymentMethod} = req.body; 
 
         const isAvailable = await checkAvailability(car, pickupDate, returnDate)
         if(!isAvailable){
@@ -55,15 +85,25 @@ export const createBooking = async (req, res)=>{
         const noOfDays = Math.ceil((returned - picked) / (1000 * 60 * 60 * 24))
         const price = carData.pricePerDay * noOfDays;
 
-        await Booking.create({car, owner: carData.owner, user: _id, pickupDate, returnDate, price})
+        // ⭐ UPDATED: Added paymentMethod to the Booking.create call
+        await Booking.create({
+            car, 
+            owner: carData.owner, 
+            user: _id, 
+            pickupDate, 
+            returnDate, 
+            price, 
+            paymentMethod: paymentMethod || 'default' // Save the chosen payment method
+        });
         
-        res.json({success: true, message: "Booking Created"})
+        res.json({success: true, message: "Booking Confirmed and Created"})
 
     } catch (error) {
         console.log(error.message);
-        res.json({success: false, message: error.message})
+        res.status(500).json({success: false, message: error.message})
     }
 }
+
 
 // API to list user Booking
 export const getUserBookings = async (req, res)=>{
@@ -223,5 +263,51 @@ export const extendBooking = async (req, res) => {
     } catch (error) {
         console.log(error.message);
         res.status(500).json({ success: false, message: "Server error. Could not extend booking." });
+    }
+};
+
+// API to get a summary of the booking (used on the confirmation page)
+export const getBookingSummary = async (req, res) => {
+    try {
+        const { car, pickupDate, returnDate } = req.body;
+
+        // 1. Check availability
+        const isAvailable = await checkAvailability(car, pickupDate, returnDate);
+        if (!isAvailable) {
+            return res.json({ success: false, message: "Item is not available for these dates." });
+        }
+
+        // 2. Fetch car data
+        const carData = await Car.findById(car);
+        if (!carData) {
+            return res.json({ success: false, message: "Item not found." });
+        }
+        
+        // 3. Calculate price
+        const picked = new Date(pickupDate);
+        const returned = new Date(returnDate);
+        
+        // Validation: Ensure return date is after pickup date
+        if (returned <= picked) {
+            return res.json({ success: false, message: "Return date must be after pickup date." });
+        }
+
+        const noOfDays = Math.ceil((returned - picked) / (1000 * 60 * 60 * 24));
+        const price = carData.pricePerDay * noOfDays;
+
+        res.json({
+            success: true,
+            summary: {
+                car: carData, // Return car details for display
+                pickupDate,
+                returnDate,
+                noOfDays,
+                totalPrice: price,
+            }
+        });
+
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).json({ success: false, message: "Failed to create booking summary." });
     }
 };

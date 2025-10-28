@@ -129,24 +129,53 @@ export const getItemById = async (req, res) => {
 
 // Api to update an item
 export const updateItem = async (req, res) => {
-    try {
-        const { _id } = req.user;
-        const { itemId, ...updatedData } = req.body;
-        const item = await Item.findById(itemId);
+  try {
+    const { _id } = req.user;
+    const { itemId } = req.params; // ✅ get itemId from URL params
+    const updatedData = req.body;
 
-        // Check if the item exists and belongs to the owner
-        if (!item || item.owner.toString() !== _id.toString()) {
-            return res.status(404).json({ success: false, message: "Item not found or unauthorized." });
-        }
+    const item = await Item.findById(itemId);
 
-        // Update the item with the new data
-        const updatedItem = await Item.findByIdAndUpdate(itemId, updatedData, { new: true });
-        res.json({ success: true, message: "Item updated successfully.", item: updatedItem });
-    } catch (error) {
-        console.error(error.message);
-        res.status(500).json({ success: false, message: "Failed to update item." });
-    }
+    // Check if the item exists and belongs to the owner
+    if (!item || item.owner.toString() !== _id.toString()) {
+      return res.status(404).json({ success: false, message: "Item not found or unauthorized." });
+    }
+
+    // ✅ Update item in DB
+    const updatedItem = await Item.findByIdAndUpdate(itemId, updatedData, { new: true });
+
+    res.json({
+      success: true,
+      message: "Item updated successfully.",
+      item: updatedItem,
+    });
+  } catch (error) {
+    console.error("Error updating item:", error);
+    res.status(500).json({ success: false, message: "Failed to update item." });
+  }
 };
+
+
+
+// export const updateItem = async (req, res) => {
+//     try {
+//         const { _id } = req.user;
+//         const { itemId, ...updatedData } = req.body;
+//         const item = await Item.findById(itemId);
+
+//         // Check if the item exists and belongs to the owner
+//         if (!item || item.owner.toString() !== _id.toString()) {
+//             return res.status(404).json({ success: false, message: "Item not found or unauthorized." });
+//         }
+
+//         // Update the item with the new data
+//         const updatedItem = await Item.findByIdAndUpdate(itemId, updatedData, { new: true });
+//         res.json({ success: true, message: "Item updated successfully.", item: updatedItem });
+//     } catch (error) {
+//         console.error(error.message);
+//         res.status(500).json({ success: false, message: "Failed to update item." });
+//     }
+// };
 
 // Api to Toggle Item Availability
 export const toggleItemAvailability = async (req, res) => {
@@ -298,5 +327,26 @@ export const updateVendorProfile = async (req, res) => {
         console.error("Error updating vendor profile:", error.message);
         // For security, avoid sending raw internal error messages in production
         res.status(500).json({ success: false, message: "Failed to update vendor profile. Please check server logs." });
+    }
+};
+
+
+export const getItemDetails = async (req, res) => {
+    try {
+        const { id } = req.params; // Get the ID from the URL parameter
+
+        // Assuming your items are stored in the Car model
+        const item = await Item.findById(id); 
+
+        if (!item) {
+            return res.status(404).json({ success: false, message: "Item not found" });
+        }
+
+        // Return the item data
+        res.json({ success: true, item });
+    } catch (error) {
+        console.log(error.message);
+        // Handle case where ID format is invalid
+        res.status(500).json({ success: false, message: "Server error fetching item details" });
     }
 };

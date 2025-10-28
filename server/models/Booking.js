@@ -9,7 +9,8 @@ const bookingShema = new mongoose.Schema({
     pickupDate: {type: Date, required: true},
     returnDate: {type: Date, required: true},
     status: {type: String, enum: ["pending", "confirmed", "cancelled"], default: "pending"},
-    price: {type: Number, required: true}
+    price: {type: Number, required: true},
+     paymentMethod: { type: String, enum: ['card', 'paypal', 'cash', 'default'], default: 'default' }
 },{timestamps: true})
 
 // FIX: Check if the model already exists before compiling it

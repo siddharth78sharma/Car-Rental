@@ -40,12 +40,12 @@ const EditItem = () => {
                 setOriginalItem(data.item);
             } else {
                 toast.error(data.message);
-                navigate('/owner/dashboard');
+                navigate('/owner');
             }
         } catch (error) {
             toast.error("Failed to fetch item details. Please check server logs for details.");
             console.error(error);
-            navigate('/owner/dashboard');
+            navigate('/owner');
         } finally {
             setLoading(false);
         }
@@ -58,7 +58,7 @@ const EditItem = () => {
             const { data } = await axios.put(`/api/owner/item/${itemId}`, item);
             if (data.success) {
                 toast.success(data.message);
-                navigate('/owner/dashboard');
+                navigate('/owner');
             } else {
                 toast.error(data.message);
             }

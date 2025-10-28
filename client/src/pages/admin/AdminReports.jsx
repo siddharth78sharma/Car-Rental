@@ -25,7 +25,8 @@ const AdminReports = () => {
         setLoading(true);
         try {
             // Fetch Statistics (e.g., total counts)
-            const statsResponse = await axios.get('/api/user/admin/dashboard/stats');
+           // const statsResponse = await axios.get('/api/user/admin/dashboard/stats');
+           const statsResponse = await axios.get('/api/user/admin/dashboard-stats');
             if (statsResponse.data.success) {
                 setStats(statsResponse.data);
             } else {
@@ -33,7 +34,8 @@ const AdminReports = () => {
             }
 
             // Fetch Graphs/Table Data (e.g., monthly trends, top vendors)
-            const graphsResponse = await axios.get('/api/user/admin/dashboard/graphs');
+            //const graphsResponse = await axios.get('/api/user/admin/dashboard/graphs');
+            const graphsResponse = await axios.get('/api/user/admin/dashboard-graphs');
             if (graphsResponse.data.success) {
                 setGraphsData(graphsResponse.data);
             } else {
