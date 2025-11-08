@@ -3,10 +3,13 @@ import Title from '../../components/owner/Title';
 import { useAppContext } from '../../context/AppContext';
 import toast from 'react-hot-toast';
 import { assets } from '../../assets/assets';
+import { useNavigate } from 'react-router-dom';
+
 
 // Constants
 const ITEMS_PER_PAGE = 10;
 const ALL_STATUSES = ['All', 'pending', 'confirmed', 'cancelled'];
+
 
 // Custom Confirmation Modal Component (Replaces window.confirm)
 const ConfirmationModal = ({ isOpen, title, message, onConfirm, onCancel }) => {
@@ -41,6 +44,7 @@ const ManageBookings = () => {
 
     const [allBookings, setAllBookings] = useState([]); // Stores all fetched bookings
     const [isLoading, setIsLoading] = useState(true);
+    const navigate = useNavigate();
     
     // Filtering States
     const [searchQuery, setSearchQuery] = useState('');
@@ -71,6 +75,7 @@ const ManageBookings = () => {
         }
     };
 
+
     const changeBookingStatus = async (bookingId, status) => {
         try {
             const { data } = await axios.post('/api/bookings/change-status', { bookingId, status });
@@ -100,7 +105,7 @@ const ManageBookings = () => {
         if (!bookingToDelete) return;
 
         try {
-            const { data } = await axios.post('/api/bookings/delete-booking', { bookingId: bookingToDelete });
+           const { data } = await axios.post('/api/bookings/delete-booking', { bookingId: bookingToDelete });
             if (data.success) {
                 toast.success(data.message);
                 // Remove from local state and reset delete state
@@ -274,10 +279,10 @@ const ManageBookings = () => {
                         <tr>
                             <th className='p-4 whitespace-nowrap'>Item</th>
                             <th className='p-4 hidden md:table-cell whitespace-nowrap'>Date Range</th>
-                            <th className='p-4 whitespace-nowrap'>Total</th>
+                            <th className='p-4 whitespace-nowrap'>Price</th>
                             <th className='p-4 hidden md:table-cell whitespace-nowrap'>Payment</th>
-                            <th className='p-4 whitespace-nowrap'>Status & Actions</th>
-                            <th className='p-4 text-right whitespace-nowrap'></th>
+                            <th className='p-4 whitespace-nowrap'>Status</th>
+                            <th className='p-4 text-right whitespace-nowrap'>Actions</th>
                         </tr>
                     </thead>
                     <tbody className='divide-y divide-gray-100'>
@@ -299,9 +304,65 @@ const ManageBookings = () => {
 
                                 <td className='p-4 font-semibold text-gray-900 text-base whitespace-nowrap'>{currency}{booking.price}</td>
 
-                                <td className='p-4 text-gray-700 hidden md:table-cell text-sm whitespace-nowrap'>
+                                {/* <td className='p-4 text-gray-700 hidden md:table-cell text-sm whitespace-nowrap'>
                                     <span className='bg-gray-100 px-3 py-1 rounded-full text-xs font-medium'>Cash on</span>
-                                </td>
+                                </td> */}
+                               
+                                {/* <td className='p-4 text-gray-700 hidden md:table-cell text-sm whitespace-nowrap'>
+                                  {booking.paymentMethod ? (
+                                  <span
+                                   className={`px-3 py-1 rounded-full text-xs font-medium ${
+                                    booking.paymentMethod.toLowerCase() === 'online'
+                                    ? 'bg-blue-100 text-blue-800'
+                                    : 'bg-gray-100 text-gray-800'
+                                   }`}
+                                >
+                                  {booking.paymentMethod === 'online' ? 'Online Payment' : 'Cash on Delivery'}
+                                 </span>
+                                ) : (
+                                 <span className='bg-gray-100 px-3 py-1 rounded-full text-xs font-medium text-gray-600'>
+                                    Unknown
+                                  </span>
+                                 )}
+                                </td> */}
+                             {/* <td className="p-4 text-gray-700 hidden md:table-cell text-sm whitespace-nowrap">
+                                  {booking.paymentMethod === "online" ? (
+                                  booking.paymentStatus === "paid" ? (
+                                <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                  Paid (Online)
+                                </span>
+                                ) : (
+                                  <span className="px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                   Payment Pending
+                                  </span>
+                               )
+                                ) : (
+                               <span className="px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                   Cash on Delivery
+                               </span>
+                                  )}
+                            </td> */}
+
+                            <td className="p-4 text-gray-700 hidden md:table-cell text-sm whitespace-nowrap">
+                              {booking.paymentMethod === "online" ? (
+                                booking.paymentStatus === "paid" ? (
+                               <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                   Paid
+                                 </span>
+                                 ) : (
+                               <span className="px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                    unpaid
+                                 </span>
+                                     )
+                                ) : (
+                                  <span className="px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                    Unpaid
+                                     </span>
+                                )}
+                               </td>
+
+
+
 
                                 <td className='p-4 text-sm whitespace-nowrap'>
                                     {booking.status === 'pending' ? (
@@ -322,8 +383,27 @@ const ManageBookings = () => {
                                         </span>
                                     )}
                                 </td>
+
+                                <td className='p-4 text-right flex justify-end gap-3'>
+                                  <button 
+                                    onClick={() => navigate(`/owner/bookings/view/${booking._id}`)} 
+                                    className="text-gray-500 hover:text-blue-600 p-2 rounded-full hover:bg-blue-50 transition-colors duration-200"
+                                     aria-label={`View booking ${booking._id}`}
+                                   >
+                                 <img src={assets.eye_icon} alt="View" className='h-5 w-5' />
+                                  </button>
+
+                                  <button 
+                                     onClick={() => deleteBooking(booking._id)} 
+                                     className="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-50 transition-colors duration-200"
+                                     aria-label={`Delete booking ${booking._id}`}
+                                   >
+                                    <img src={assets.delete_icon} alt="Delete" className='h-5 w-5 inline-block'/>
+                                   </button>
+                                </td>
+
                                 
-                                <td className='p-4 text-right'>
+                                {/* <td className='p-4 text-right'>
                                     <button 
                                         onClick={() => deleteBooking(booking._id)} 
                                         className="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-50 transition-colors duration-200"
@@ -331,7 +411,7 @@ const ManageBookings = () => {
                                     >
                                         <img src={assets.delete_icon} alt="Delete" className='h-5 w-5 inline-block'/>
                                     </button>
-                                </td>
+                                </td> */}
                             </tr>
                         )) : <tr><td colSpan="6" className='p-8 text-center text-gray-500 text-lg'>No bookings match your current filter criteria.</td></tr>}
                     </tbody>
@@ -363,149 +443,3 @@ const ManageBookings = () => {
 };
 
 export default ManageBookings;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// import React, { useEffect, useState } from 'react';
-// import Title from '../../components/owner/Title';
-// import { useAppContext } from '../../context/AppContext';
-// import toast from 'react-hot-toast';
-// import { assets } from '../../assets/assets';
-
-// const ManageBookings = () => {
-//     const { axios, currency } = useAppContext();
-
-//     const [bookings, setBookings] = useState([]);
-
-//     const fetchOwnerBookings = async () => {
-//         try {
-//             const { data } = await axios.get('/api/bookings/owner');
-//             if (data.success) {
-//                 setBookings(data.bookings || []);
-//             } else {
-//                 toast.error(data.message);
-//             }
-//         } catch (error) {
-//             toast.error(error.message);
-//         }
-//     };
-
-//     const changeBookingStatus = async (bookingId, status) => {
-//         try {
-//             const { data } = await axios.post('/api/bookings/change-status', { bookingId, status });
-//             if (data.success) {
-//                 toast.success(data.message);
-//                 fetchOwnerBookings();
-//             } else {
-//                 toast.error(data.message);
-//             }
-//         } catch (error) {
-//             toast.error(error.message);
-//         }
-//     };
-    
-//     // Updated delete function to use toast instead of window.confirm
-//     const deleteBooking = async (bookingId) => {
-//         const confirmation = window.confirm("Are you sure you want to delete this booking?");
-//         if (confirmation) {
-//             try {
-//                 const { data } = await axios.post('/api/bookings/delete-booking', { bookingId });
-//                 if (data.success) {
-//                     toast.success(data.message);
-//                     fetchOwnerBookings();
-//                 } else {
-//                     toast.error(data.message);
-//                 }
-//             } catch (error) {
-//                 toast.error(error.message);
-//             }
-//         }
-//     };
-
-//     useEffect(() => {
-//         fetchOwnerBookings();
-//     }, [axios]); // Added axios to the dependency array
-
-//     return (
-//         <div className='p-6 md:p-10 bg-gray-50 min-h-screen font-sans'>
-//             <Title 
-//                 title="Manage Bookings" 
-//                // subTitle="Track all bookings, approve or cancel requests, and manage booking statuses."
-//             />
-            
-//             <div className='w-full max-w-7xl mx-auto bg-white rounded-xl shadow-lg mt-8 overflow-hidden'>
-//                 <table className='w-full table-auto text-left'>
-//                     <thead className='bg-gray-100 text-gray-600 uppercase text-sm font-semibold tracking-wider'>
-//                         <tr>
-//                             <th className='p-4'>Items</th>
-//                             <th className='p-4 hidden md:table-cell'>Date Range</th>
-//                             <th className='p-4'>Total</th>
-//                             <th className='p-4 hidden md:table-cell'>Payment</th>
-//                             <th className='p-4'>Actions</th>
-//                             <th className='p-4 text-right'></th>
-//                         </tr>
-//                     </thead>
-//                     <tbody>
-//                         {bookings.length > 0 ? bookings.map((booking, index) => (
-//                             <tr key={index} className='border-t border-gray-200 hover:bg-blue-50 transition-colors duration-200'>
-//                                 <td className='p-4 flex items-center gap-4'>
-//                                     <img src={booking.car?.image} alt="" className='h-14 w-14 rounded-lg object-cover shadow-sm'/>
-//                                     <p className='font-bold text-gray-900'>{booking.car?.brand} {booking.car?.model}</p>
-//                                 </td>
-                                
-//                                 <td className='p-4 text-gray-700 hidden md:table-cell'>
-//                                     {new Date(booking.pickupDate).toLocaleDateString()} to {new Date(booking.returnDate).toLocaleDateString()}
-//                                 </td>
-
-//                                 <td className='p-4 font-semibold text-gray-900'>{currency}{booking.price}</td>
-
-//                                 <td className='p-4 text-gray-700 hidden md:table-cell'>
-//                                     <span className='bg-gray-100 px-3 py-1 rounded-full text-xs font-medium'>offline</span>
-//                                 </td>
-
-//                                 <td className='p-4'>
-//                                     {booking.status === 'pending' ? (
-//                                         <select 
-//                                             onChange={e => changeBookingStatus(booking._id, e.target.value)} 
-//                                             value={booking.status} 
-//                                             className='px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500'
-//                                         >
-//                                             <option value="pending" className="text-gray-800">Pending</option>
-//                                             <option value="cancelled" className="text-gray-800">Cancelled</option>
-//                                             <option value="confirmed" className="text-gray-800">Confirmed</option>
-//                                         </select>
-//                                     ) : (
-//                                         <span className={`px-3 py-1 rounded-full text-xs font-semibold
-//                                             ${booking.status === 'confirmed' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`
-//                                         }>
-//                                             {booking.status}
-//                                         </span>
-//                                     )}
-//                                 </td>
-                                
-//                                 <td className='p-4 text-right'>
-//                                     <button onClick={() => deleteBooking(booking._id)} className="text-red-500 hover:text-red-700 transition-colors duration-200">
-//                                         <img src={assets.delete_icon} alt="Delete" className='h-5 w-5 inline-block'/>
-//                                     </button>
-//                                 </td>
-//                             </tr>
-//                         )) : <tr><td colSpan="6" className='p-6 text-center text-gray-500'>No bookings found.</td></tr>}
-//                     </tbody>
-//                 </table>
-//             </div>
-//         </div>
-//     );
-// };
-
-// export default ManageBookings;

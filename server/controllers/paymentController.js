@@ -1,6 +1,8 @@
 import Razorpay from "razorpay";
 import crypto from "crypto";
 import dotenv from "dotenv";
+import Booking from "../models/Booking.js";
+
 dotenv.config();
 
 const razorpay = new Razorpay({
@@ -28,7 +30,8 @@ export const createOrder = async (req, res) => {
 // Step 2: Verify Razorpay Payment
 export const verifyPayment = async (req, res) => {
   try {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature  } = req.body;
+
 
     const sign = razorpay_order_id + "|" + razorpay_payment_id;
     const expectedSign = crypto
@@ -46,3 +49,4 @@ export const verifyPayment = async (req, res) => {
     res.status(500).json({ success: false, message: "Payment verification failed" });
   }
 };
+

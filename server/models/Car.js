@@ -14,6 +14,10 @@ const itemSchema = new mongoose.Schema({
     fuel_type: { type: String }, // FIX: Removed default
     pricePerDay: { type: Number, required: true },
     location: { type: String, required: true },
+    locationCoords: {
+    lat: { type: Number },
+    lng: { type: Number }
+    },
     description: { type: String, required: true },
     isAvaliable: { type: Boolean, default: true },
     features: { type: [String], default: [] },

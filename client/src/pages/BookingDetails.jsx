@@ -9,6 +9,9 @@ const BookingDetails = () => {
     const navigate = useNavigate();
     const { axios, currency, fetchItems } = useAppContext(); 
 
+    const [deliveryLocation, setDeliveryLocation] = useState('');
+
+
     // Destructure dates from state (Note: startDate/endDate are already available)
     const {  pickupDate: startDate, returnDate: endDate } = location.state || {}; 
 
@@ -76,6 +79,12 @@ const handleConfirmBooking = async () => {
     return;
   }
 
+  if (!deliveryLocation) {
+  toast.error("Please enter delivery location.");
+  return;
+  }
+
+
   if (paymentMethod === "cash") {
     // Cash booking → skip Razorpay
     try {
@@ -85,6 +94,7 @@ const handleConfirmBooking = async () => {
         pickupDate: startDate,
         returnDate: endDate,
         paymentMethod: "cash",
+         location: deliveryLocation,
       };
       const res = await axios.post("/api/bookings/create", bookingData);
       if (res.data.success) {
@@ -129,29 +139,32 @@ const handleConfirmBooking = async () => {
       description: "Booking Payment",
       order_id: order.id,
       handler: async function (response) {
-        // 3️⃣ Verify payment on backend
-        const verifyRes = await axios.post("/api/payment/verify-payment", response);
+  // Verify payment on backend
+  const verifyRes = await axios.post("/api/payment/verify-payment", response);
 
-        if (verifyRes.data.success) {
-          // 4️⃣ Create booking after successful payment
-          const bookingData = {
-            car: itemId,
-            pickupDate: startDate,
-            returnDate: endDate,
-            paymentMethod: "razorpay",
-          };
-          const bookingRes = await axios.post("/api/bookings/create", bookingData);
+  if (verifyRes.data.success) {
+    // Include payment details in booking
+    const bookingData = {
+      car: itemId,
+      pickupDate: startDate,
+      returnDate: endDate,
+      paymentMethod: "razorpay",
+      paymentId: response.razorpay_payment_id,
+      orderId: response.razorpay_order_id, 
+      location: deliveryLocation // we'll add this in part 2
+    };
+    const bookingRes = await axios.post("/api/bookings/create", bookingData);
 
-          if (bookingRes.data.success) {
-            toast.success("Payment successful & Booking confirmed!");
-            navigate("/my-bookings");
-          } else {
-            toast.error(bookingRes.data.message || "Booking creation failed.");
-          }
-        } else {
-          toast.error("Payment verification failed.");
-        }
-      },
+    if (bookingRes.data.success) {
+      toast.success("Payment successful & Booking confirmed!");
+      navigate("/my-bookings");
+    } else {
+      toast.error(bookingRes.data.message || "Booking creation failed.");
+    }
+  } else {
+    toast.error("Payment verification failed.");
+  }   
+ },
       theme: { color: "#2563eb" },
     };
 
@@ -298,8 +311,8 @@ const formatDate = (dateString) => {
                             <input
                                 type="radio"
                                 name="payment"
-                                value="card"
-                                checked={paymentMethod === 'card'}
+                                value="razorpay"
+                                checked={paymentMethod === 'razorpay'}
                                 onChange={(e) => setPaymentMethod(e.target.value)}
                                 className="h-4 w-4 text-blue-600 focus:ring-blue-500"
                             />
@@ -317,6 +330,20 @@ const formatDate = (dateString) => {
                             <span className="ml-3 font-medium text-gray-700">Cash On</span>
                         </label>
                     </div>
+
+                    <div className="mb-6">
+                        <label className="block text-gray-700 font-medium mb-2">
+                           Delivery Location
+                        </label>
+                         <input
+                            type="text"
+                            placeholder="Enter delivery address or location"
+                             value={deliveryLocation}
+                              onChange={(e) => setDeliveryLocation(e.target.value)}
+                             className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                           />
+                      </div>
+
 
                     <p className="text-sm text-gray-500 mb-6">
                         By clicking "Confirm Booking," you agree to our terms and conditions and authorize the payment of {currency}{totalPrice.toFixed(2)}.

@@ -5,6 +5,7 @@ import Item from "../models/Car.js";
 import Booking from '../models/Booking.js';
 import crypto from "crypto";
 import nodemailer from "nodemailer";
+//import { sendEmail } from "../utils/sendEmail.js";
 
 
 // Generate JWT token
@@ -613,6 +614,40 @@ export const updateVendorProfile = async (req, res) => {
 };
 
 // api for forgate password
+// export const forgotPassword = async (req, res) => {
+//   try {
+//     const { email } = req.body;
+//     const user = await User.findOne({ email });
+//     if (!user)
+//       return res.status(404).json({ success: false, message: "User not found" });
+
+//     // Create reset token
+//     const token = crypto.randomBytes(32).toString("hex");
+//     user.resetToken = token;
+//     user.resetTokenExpiry = Date.now() + 15 * 60 * 1000; // 15 minutes
+//     await user.save();
+
+//     // Email link
+//     const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${token}`;
+
+//     const html = `
+//       <div style="font-family:Arial,sans-serif;line-height:1.6;">
+//         <h2>Password Reset Request</h2>
+//         <p>Click the link below to reset your password:</p>
+//         <a href="${resetUrl}" style="color:#007bff;">${resetUrl}</a>
+//         <p>This link will expire in 15 minutes.</p>
+//       </div>
+//     `;
+
+//     await sendEmail(user.email, "Reset your password", html);
+
+//     res.json({ success: true, message: "Password reset link sent!" });
+//   } catch (error) {
+//     console.error("Forgot password error:", error);
+//     res.status(500).json({ success: false, message: "Server error" });
+//   }
+// };
+
 export const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
@@ -665,6 +700,32 @@ export const forgotPassword = async (req, res) => {
 
 
 // api for reset password
+// export const resetPassword = async (req, res) => {
+//   try {
+//     const { token } = req.params;
+//     const { newPassword } = req.body;
+
+//     const user = await User.findOne({
+//       resetToken: token,
+//       resetTokenExpiry: { $gt: Date.now() },
+//     });
+
+//     if (!user)
+//       return res.status(400).json({ success: false, message: "Invalid or expired token" });
+
+//     user.password = newPassword;
+//     user.resetToken = undefined;
+//     user.resetTokenExpiry = undefined;
+//     await user.save();
+
+//     res.json({ success: true, message: "Password reset successful!" });
+//   } catch (error) {
+//     console.error("Reset password error:", error);
+//     res.status(500).json({ success: false, message: "Server error" });
+//   }
+// };
+
+
 export const resetPassword = async (req, res) => {
   try {
     const { token } = req.params;
@@ -679,7 +740,12 @@ export const resetPassword = async (req, res) => {
       return res.json({ success: false, message: "Invalid or expired token" });
     }
 
-    user.password = newPassword; // 🔒 Make sure password hashing middleware runs
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    user.password = hashedPassword;
+
+    //user.password = newPassword; // 🔒 Make sure password hashing middleware runs
     user.resetPasswordToken = undefined;
     user.resetPasswordExpires = undefined;
     await user.save();
@@ -690,3 +756,8 @@ export const resetPassword = async (req, res) => {
     res.json({ success: false, message: "Server error resetting password" });
   }
 };
+
+
+
+
+//ufze svjp xfpg erab

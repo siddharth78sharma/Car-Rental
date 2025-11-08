@@ -65,44 +65,130 @@ export const checkAvailabilityOfCar = async ( req, res )=>{
 //     }
 // }
 
-// API to create Booking (Updated to accept paymentMethod)
-export const createBooking = async (req, res)=>{
-    try {
-        const {_id} = req.user;
-        // ⭐ ADDED: paymentMethod
-        const {car, pickupDate, returnDate, paymentMethod} = req.body; 
 
-        const isAvailable = await checkAvailability(car, pickupDate, returnDate)
-        if(!isAvailable){
-            return res.json({success: false, message: "Item is not available"})
-        }
-        
-        const carData = await Car.findById(car)
-        
-        // Calculate price based on pickupdate and returndate 
-        const picked = new Date(pickupDate);
-        const returned = new Date(returnDate);
-        const noOfDays = Math.ceil((returned - picked) / (1000 * 60 * 60 * 24))
-        const price = carData.pricePerDay * noOfDays;
 
-        // ⭐ UPDATED: Added paymentMethod to the Booking.create call
-        await Booking.create({
-            car, 
-            owner: carData.owner, 
-            user: _id, 
-            pickupDate, 
-            returnDate, 
-            price, 
-            paymentMethod: paymentMethod || 'default' // Save the chosen payment method
-        });
-        
-        res.json({success: true, message: "Booking Confirmed and Created"})
+// ✅ UPDATED: API to create Booking (supports Razorpay + location)
+export const createBooking = async (req, res) => {
+  try {
+    const { _id } = req.user;
+    const {
+      car,
+      pickupDate,
+      returnDate,
+      paymentMethod,
+      paymentId,
+      orderId,
+      location,
+    } = req.body;
 
-    } catch (error) {
-        console.log(error.message);
-        res.status(500).json({success: false, message: error.message})
+    // Check availability for the selected dates
+    const isAvailable = await checkAvailability(car, pickupDate, returnDate);
+    if (!isAvailable) {
+      return res.json({ success: false, message: "Item is not available" });
     }
-}
+
+    const carData = await Car.findById(car);
+    if (!carData) {
+      return res.json({ success: false, message: "Car not found" });
+    }
+
+    // Calculate total price based on rental duration
+    const picked = new Date(pickupDate);
+    const returned = new Date(returnDate);
+    const noOfDays = Math.ceil((returned - picked) / (1000 * 60 * 60 * 24));
+    const price = carData.pricePerDay * noOfDays;
+
+    // 🧾 Determine booking status based on payment method
+    // const paymentStatus =
+    //   paymentMethod === "razorpay" ? "paid" : "pending";
+
+    // // ✅ Create the booking document
+    // const newBooking = await Booking.create({
+    //   car,
+    //   owner: carData.owner,
+    //   user: _id,
+    //   pickupDate,
+    //   returnDate,
+    //   price,
+    //   paymentMethod: paymentMethod || "cash",
+    //   paymentId: paymentId || null,
+    //   orderId: orderId || null,
+    //   location: location || carData.location, // fallback if not provided
+    //   paymentStatus: "pending",
+      
+    // });
+    let paymentStatus = "pending";
+    if (paymentMethod === "razorpay" && paymentId) {
+      paymentStatus = "paid"; // ✅ Successful online payment
+    }
+
+    const newBooking = await Booking.create({
+      car,
+      owner: carData.owner,
+      user: _id,
+      pickupDate,
+      returnDate,
+      price,
+      paymentMethod: paymentMethod || "cash",
+      paymentStatus,
+      paymentId: paymentId || null,
+      orderId: orderId || null,
+     // status: "confirmed", // optional
+    });
+
+    res.json({
+      success: true,
+      message:
+        paymentMethod === "razorpay"
+          ? "Booking confirmed successfully"
+          : "Booking created successfully",
+      booking: newBooking,
+    });
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+
+// API to create Booking (Updated to accept paymentMethod)
+// export const createBooking = async (req, res)=>{
+//     try {
+//         const {_id} = req.user;
+//         // ⭐ ADDED: paymentMethod
+//         const {car, pickupDate, returnDate, paymentMethod} = req.body; 
+
+//         const isAvailable = await checkAvailability(car, pickupDate, returnDate)
+//         if(!isAvailable){
+//             return res.json({success: false, message: "Item is not available"})
+//         }
+        
+//         const carData = await Car.findById(car)
+        
+//         // Calculate price based on pickupdate and returndate 
+//         const picked = new Date(pickupDate);
+//         const returned = new Date(returnDate);
+//         const noOfDays = Math.ceil((returned - picked) / (1000 * 60 * 60 * 24))
+//         const price = carData.pricePerDay * noOfDays;
+
+//         // ⭐ UPDATED: Added paymentMethod to the Booking.create call
+//         await Booking.create({
+//             car, 
+//             owner: carData.owner, 
+//             user: _id, 
+//             pickupDate, 
+//             returnDate, 
+//             price, 
+//             paymentMethod: paymentMethod || 'default' // Save the chosen payment method
+//         });
+        
+//         res.json({success: true, message: "Booking Confirmed and Created"})
+
+//     } catch (error) {
+//         console.log(error.message);
+//         res.status(500).json({success: false, message: error.message})
+//     }
+// }
 
 
 // API to list user Booking
@@ -310,4 +396,57 @@ export const getBookingSummary = async (req, res) => {
         console.log(error.message);
         res.status(500).json({ success: false, message: "Failed to create booking summary." });
     }
+};
+
+
+export const deleteBooking = async (req, res) => {
+  try {
+    const { bookingId } = req.body;
+    const userId = req.user._id;
+
+    const booking = await Booking.findById(bookingId);
+    if (!booking) {
+      return res.status(404).json({ success: false, message: "Booking not found" });
+    }
+
+    // Allow only the user who created the booking or the owner to delete it
+    if (
+      booking.user.toString() !== userId.toString() &&
+      booking.owner.toString() !== userId.toString()
+    ) {
+      return res.status(403).json({ success: false, message: "Not authorized to delete this booking" });
+    }
+
+    await Booking.findByIdAndDelete(bookingId);
+
+    res.json({ success: true, message: "Booking deleted successfully" });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ success: false, message: "Failed to delete booking" });
+  }
+};
+
+
+export const getBookingById = async (req, res) => {
+  try {
+    const booking = await Booking.findById(req.params.id)
+      .populate("car")
+      .populate("user", "name email phone")   // Select only relevant user fields
+      .populate("owner", "name email");
+
+    if (!booking) {
+      return res.status(404).json({
+        success: false,
+        message: "Booking not found",
+      });
+    }
+
+    res.json({ success: true, booking });
+  } catch (err) {
+    console.error("Error fetching booking details:", err);
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
+  }
 };

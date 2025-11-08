@@ -34,6 +34,7 @@ import AdminReports from './pages/admin/AdminReports';
 import BookingDetails from './pages/BookingDetails';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
+import BookingDetail from './pages/owner/BookingDetails';
 
 
 // Component to scroll to the top of the page on route change.
@@ -80,6 +81,8 @@ const App = () => {
                 <Route path="/booking-details/:itemId" element={<BookingDetails />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/reset-password/:token" element={<ResetPassword />} />
+                <Route path="/login" element={<Login />} />
+
 
 
 
@@ -92,6 +95,8 @@ const App = () => {
                     <Route path="items/edit/:itemId" element={<EditItem />} />
                     <Route path="manage-bookings" element={<ManageBookings />} />
                     <Route path='settings' element={<VendorSettings />} />
+                    <Route path="bookings/view/:id" element={<BookingDetail />} />
+
                 </Route>
 
                 {/* Admin Dashboard Routes */}

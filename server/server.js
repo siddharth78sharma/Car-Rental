@@ -7,6 +7,7 @@ import ownerRouter from "./routes/ownerRoutes.js";
 import bookingRouter from "./routes/bookingRoutes.js";
 import settingRouter from './routes/settingRoutes.js';
 import paymentRoutes from "./routes/paymentRoutes.js";
+import mapRouter from "./routes/mapRoutes.js";
 
 // Initialize Express App
 const app = express()
@@ -23,6 +24,7 @@ app.use('/api/user', userRouter)
 app.use('/api/owner', ownerRouter)
 app.use('/api/bookings', bookingRouter)
 app.use("/api/payment", paymentRoutes);
+app.use('/api/maps', mapRouter);
 
 app.use('/api', settingRouter); // Use the new settings router
 
