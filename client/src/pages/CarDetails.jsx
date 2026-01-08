@@ -137,7 +137,7 @@ const CarDetails = () => {
     const filteredDetails = detailsToDisplay.filter(detail => detail.text);
 
     return car ? (
-        <div className='px-6 md:px-16 lg:px-24 xl:px-32 mt-16'>
+        <div className='px-6 md:px-16 lg:px-24 xl:px-32 mt-16 pt-15'>
             <button onClick={() => navigate(-1)} className='flex items-center gap-2 mb-6 text-gray-500 cursor-pointer'>
                 <img src={assets.arrow_icon} alt='' className='rotate-180 opacity-65' />
                 Back to all services

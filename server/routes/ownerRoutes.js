@@ -1,6 +1,6 @@
 import express from "express";
 import { protect } from "../middleware/auth.js";
-import { addItem, changeRoleToOwner, deleteItem, getDashboardData, getItemById, getItemDetails, getOwnerItems, toggleItemAvailability, updateItem, updateUserImage, updateVendorProfile } from "../controllers/ownerController.js";
+import { addItem, changeRoleToOwner, deleteItem, getDashboardData, getItemById, getItemDetails, getOwnerItems, getVendorServices, toggleItemAvailability, updateItem, updateUserImage, updateVendorProfile } from "../controllers/ownerController.js";
 import upload from "../middleware/multer.js";
 
 const ownerRouter = express.Router();
@@ -20,6 +20,7 @@ ownerRouter.put('/update-profile-details', protect, updateVendorProfile);
 ownerRouter.get('/dashboard', protect, getDashboardData);
 ownerRouter.post('/update-image', upload.single("image"), protect, updateUserImage);
 ownerRouter.get('/details/:id',protect, getItemDetails);
+ownerRouter.get("/vendor/:id", getVendorServices);
 
 export default ownerRouter;
 

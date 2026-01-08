@@ -13,6 +13,9 @@ const Profile = () => {
     email: "",
     image: "",
   });
+  const [selectedLat, setSelectedLat] = useState(null);
+  const [selectedLng, setSelectedLng] = useState(null);
+
 
   const [vendorProfile, setVendorProfile] = useState({
     storeName: "",
@@ -45,7 +48,23 @@ const Profile = () => {
     try {
       const { data } = await axios.get("/api/user/vendor-profile");
       if (data.success) {
-        setVendorProfile(data.vendorProfile || {});
+        setVendorProfile(data.vendorProfile || {
+          storeName: "",
+          phoneNumber: "",
+          businessType: "",
+          address: "",
+          city: "",
+          state: "",
+          country: "",
+          postalCode: "",
+          description: "",
+          website: "",
+          gstNumber: "",
+          shopCoords: {
+            lat: selectedLat,
+            lng: selectedLng
+          }
+        });
       }
     } catch (error) {
       toast.error("Failed to fetch vendor details");
@@ -53,20 +72,63 @@ const Profile = () => {
   };
 
   // ✅ Update vendor profile
-  const handleSaveVendorProfile = async () => {
-    try {
-      const { data } = await axios.put("/api/user/vendor-profile", vendorProfile);
-      if (data.success) {
-        toast.success("Vendor profile updated successfully");
-        setVendorProfile(data.vendorProfile);
-        setIsEditing(false);
-      } else {
-        toast.error(data.message);
+const handleSaveVendorProfile = async () => {
+  try {
+    const payload = {
+      ...vendorProfile,
+      shopCoords: {
+        lat: selectedLat,
+        lng: selectedLng
       }
-    } catch (error) {
-      toast.error("Failed to update vendor profile");
+    };
+
+    const { data } = await axios.put("/api/user/vendor-profile", payload);
+
+    if (data.success) {
+      toast.success("Vendor profile updated successfully");
+
+      setVendorProfile(data.vendorProfile);
+      setIsEditing(false);
+    } else {
+      toast.error(data.message);
     }
-  };
+  } catch (error) {
+    toast.error("Failed to update vendor profile");
+  }
+};
+
+
+  // const handleSaveVendorProfile = async () => {
+  //   try {
+  //     const { data } = await axios.put("/api/user/vendor-profile", vendorProfile);
+  //     if (data.success) {
+  //       toast.success("Vendor profile updated successfully");
+  //       //setVendorProfile(data.vendorProfile);
+  //       setVendorProfile(data.vendorProfile || {
+  //       storeName: "",
+  //       phoneNumber: "",
+  //       businessType: "",
+  //       address: "",
+  //       city: "",
+  //       state: "",
+  //       country: "",
+  //       postalCode: "",
+  //       description: "",
+  //       website: "",
+  //       gstNumber: "",
+  //       shopCoords: {
+  //        lat: selectedLat,
+  //        lng: selectedLng
+  //     }
+  //     });
+  //       setIsEditing(false);
+  //     } else {
+  //       toast.error(data.message);
+  //     }
+  //   } catch (error) {
+  //     toast.error("Failed to update vendor profile");
+  //   }
+  // };
 
   useEffect(() => {
     fetchUserProfile();
@@ -76,7 +138,7 @@ const Profile = () => {
   }, [user]);
 
   return (
-    <div className="max-w-5xl mx-auto p-6 mt-10 bg-white shadow-lg rounded-2xl">
+    <div className="max-w-5xl mx-auto p-6 mt-10 bg-white shadow-lg rounded-2xl pt-20">
       <h2 className="text-3xl font-bold text-gray-800 mb-6 border-b pb-3">My Profile</h2>
 
       {/* ===== Basic Profile Info ===== */}

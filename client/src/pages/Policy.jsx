@@ -57,7 +57,7 @@ const PrivacyPolicy = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 py-16 px-6 sm:px-10 md:px-20 font-sans text-gray-700">
+    <div className="min-h-screen bg-gray-50 py-16 px-6 sm:px-10 md:px-20 font-sans text-gray-700 pt-24">
       {/* Header */}
       <motion.header
         initial={{ opacity: 0, y: -20 }}

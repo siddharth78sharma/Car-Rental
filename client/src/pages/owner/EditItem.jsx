@@ -28,7 +28,7 @@ const EditItem = () => {
         'isAvailable' // isAvailable is handled as a separate checkbox for better user experience
     ];
 
-    const locations = ["Jaipur", "Delhi", "Mumbai", "Chennai", "Kolkata", "Bengaluru", "Hyderabad", "Pune"];
+    const locations = ["Jaipur", "Delhi", "Mumbai", "Chennai", "Kolkata", "Bengaluru", "Hyderabad", "Pune", "Other"];
 
     // Function to fetch the specific item's data
     const fetchItem = async () => {
@@ -107,19 +107,59 @@ const EditItem = () => {
                         let inputElement;
                         if (key === 'location') {
                             inputElement = (
-                                <select
-                                    name={key}
-                                    value={value}
-                                    onChange={handleChange}
-                                    className='w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
-                                    required
-                                >
-                                    <option value="">Select a location</option>
+                         <div>
+                           <select
+                              name={key}
+                              value={locations.includes(value) ? value : 'Other'}
+                                 onChange={(e) => {
+                                  const val = e.target.value;
+                                    if (val === 'Other') {
+                                         setItem(prev => ({ ...prev, location: '' }));
+                                      } else {
+                                    setItem(prev => ({ ...prev, location: val }));
+                                 }
+                                        }}
+                                     className='w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mb-3'
+                                      required
+                                  >
+                                 <option value="">Select a location</option>
                                     {locations.map((loc) => (
-                                        <option key={loc} value={loc}>{loc}</option>
-                                    ))}
-                                </select>
-                            );
+                                       <option key={loc} value={loc}>{loc}</option>
+                                      ))}
+                                        <option value="Other">Other</option>
+                                    </select>
+
+                                     {/* Show text input only if 'Other' is selected */}
+                                      {(!locations.includes(item.location) || item.location === '') && (
+                                      <input
+                                       type="text"
+                                       name="location"
+                                       value={item.location}
+                                       onChange={handleChange}
+                                       className='w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
+                                            placeholder="Enter custom location"
+                                       required
+                                     />
+                                   )}
+                                     </div>
+                                      );
+                                    
+
+                        // if (key === 'location') {
+                        //     inputElement = (
+                        //         <select
+                        //             name={key}
+                        //             value={value}
+                        //             onChange={handleChange}
+                        //             className='w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
+                        //             required
+                        //         >
+                        //             <option value="">Select a location</option>
+                        //             {locations.map((loc) => (
+                        //                 <option key={loc} value={loc}>{loc}</option>
+                        //             ))}
+                        //         </select>
+                        //     );
                         } else if (key === 'description') {
                             inputElement = (
                                 <textarea

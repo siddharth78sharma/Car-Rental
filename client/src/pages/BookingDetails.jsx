@@ -269,7 +269,7 @@ const formatDate = (dateString) => {
 
 
     return (
-        <div className="max-w-4xl mx-auto my-12 p-6 bg-white shadow-xl rounded-lg">
+        <div className="max-w-4xl mx-auto my-12 p-6 bg-white shadow-xl rounded-lg pt-24">
             <h1 className="text-3xl font-bold text-gray-800 mb-6 border-b pb-4">Confirm Your Booking</h1>
             
             <div className="grid md:grid-cols-2 gap-8">

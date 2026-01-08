@@ -66,7 +66,7 @@ const AddService = () => {
 
             if (response.data.success) {
                 toast.success(response.data.message);
-                await fetchItems();
+             //   await fetchItems();
                 setType('');
                 setFormData({});
                 setImage(null);

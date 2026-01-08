@@ -37,7 +37,7 @@ const Help = () => {
   };
 
   return (
-    <div className="bg-gradient-to-b from-gray-50 to-white min-h-screen py-16 px-6 md:px-16 lg:px-24 xl:px-32">
+    <div className="bg-gradient-to-b from-gray-50 to-white min-h-screen py-16 px-6 md:px-16 lg:px-24 xl:px-32 pt-24">
       {/* Header */}
       <motion.div
         className="text-center mb-12"

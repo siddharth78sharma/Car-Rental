@@ -5,6 +5,7 @@ import Item from "../models/Car.js";
 import Booking from '../models/Booking.js';
 import crypto from "crypto";
 import nodemailer from "nodemailer";
+import { geocodeVendorAddress } from "../controllers/mapController.js";
 //import { sendEmail } from "../utils/sendEmail.js";
 
 
@@ -595,58 +596,117 @@ export const getVendorProfile = async (req, res) => {
 };
 
 // 🟣 Update Vendor Profile
+// 🟣 Update Vendor Profile
 export const updateVendorProfile = async (req, res) => {
-  try {
-    const updates = req.body;
-    const user = await User.findById(req.user._id);
+    //console.log("GEOCODED:", coords);
 
-    if (!user) return res.status(404).json({ success: false, message: "User not found" });
-    if (user.role !== "owner") return res.status(403).json({ success: false, message: "Not authorized" });
+    try {
+        const { _id, role } = req.user;
+        const { storeName, phoneNumber, address, city, state, country,postalCode,description, website, gstNumber } = req.body;
 
-    user.vendorProfile = { ...user.vendorProfile, ...updates };
-    await user.save();
+        if (role !== "owner") {
+            return res.status(403).json({ success: false, message: "Access denied." });
+        }
 
-    res.json({ success: true, message: "Vendor profile updated successfully", user });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: "Server error updating vendor profile" });
-  }
+        // Combine address into single string for geocoding
+        const fullAddress = `${address}, ${city}, ${state}`;
+
+        // ⭐ Get coordinates automatically
+        const coords = await geocodeVendorAddress(fullAddress);
+
+        // Create update object
+        const updateFields = {
+            vendorProfile: {
+                storeName,
+                phoneNumber,
+                address,
+                city,
+                state,
+                country,
+                postalCode,
+                description,
+                website,
+                gstNumber,
+                shopCoords: coords ? coords : null,  // ⭐ Save coords here
+            }
+        };
+
+        const updatedUser = await User.findByIdAndUpdate(_id, updateFields, {
+            new: true,
+            runValidators: true
+        });
+
+        res.json({
+            success: true,
+            message: "Vendor profile updated",
+            user: updatedUser
+        });
+
+    } catch (error) {
+        console.error("Error updating vendor profile:", error);
+        res.status(500).json({ success: false, message: "Failed to update vendor profile" });
+    }
 };
 
-// api for forgate password
-// export const forgotPassword = async (req, res) => {
+// export const updateVendorProfile = async (req, res) => {
 //   try {
-//     const { email } = req.body;
-//     const user = await User.findOne({ email });
-//     if (!user)
+//     const updates = req.body;
+//     const user = await User.findById(req.user._id);
+
+//     if (!user) 
 //       return res.status(404).json({ success: false, message: "User not found" });
 
-//     // Create reset token
-//     const token = crypto.randomBytes(32).toString("hex");
-//     user.resetToken = token;
-//     user.resetTokenExpiry = Date.now() + 15 * 60 * 1000; // 15 minutes
+//     if (user.role !== "owner") 
+//       return res.status(403).json({ success: false, message: "Not authorized" });
+
+//     // ⭐️ FIX: Ensure vendorProfile always exists
+//     if (!user.vendorProfile) {
+//       user.vendorProfile = {};
+//     }
+
+//     // ⭐️ Prevent crash if shopCoords missing
+//     if (!user.vendorProfile.shopCoords) {
+//       user.vendorProfile.shopCoords = { lat: null, lng: null };
+//     }
+
+//     // Merge updates
+//     user.vendorProfile = { ...user.vendorProfile, ...updates };
+
 //     await user.save();
 
-//     // Email link
-//     const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${token}`;
+//     res.json({ 
+//       success: true, 
+//       message: "Vendor profile updated successfully", 
+//       vendorProfile: user.vendorProfile
+//     });
 
-//     const html = `
-//       <div style="font-family:Arial,sans-serif;line-height:1.6;">
-//         <h2>Password Reset Request</h2>
-//         <p>Click the link below to reset your password:</p>
-//         <a href="${resetUrl}" style="color:#007bff;">${resetUrl}</a>
-//         <p>This link will expire in 15 minutes.</p>
-//       </div>
-//     `;
-
-//     await sendEmail(user.email, "Reset your password", html);
-
-//     res.json({ success: true, message: "Password reset link sent!" });
 //   } catch (error) {
-//     console.error("Forgot password error:", error);
-//     res.status(500).json({ success: false, message: "Server error" });
+//     console.error("Vendor update error:", error);
+//     res.status(500).json({ success: false, message: "Server error updating vendor profile" });
 //   }
 // };
+
+
+
+
+// export const updateVendorProfile = async (req, res) => {
+//   try {
+//     const updates = req.body;
+//     const user = await User.findById(req.user._id);
+
+//     if (!user) return res.status(404).json({ success: false, message: "User not found" });
+//     if (user.role !== "owner") return res.status(403).json({ success: false, message: "Not authorized" });
+
+//     user.vendorProfile = { ...user.vendorProfile, ...updates };
+//     await user.save();
+
+//     res.json({ success: true, message: "Vendor profile updated successfully", user });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ success: false, message: "Server error updating vendor profile" });
+//   }
+// };
+
 
 export const forgotPassword = async (req, res) => {
   try {

@@ -35,6 +35,12 @@ import BookingDetails from './pages/BookingDetails';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import BookingDetail from './pages/owner/BookingDetails';
+import VendorServices from './pages/VendorServices';
+
+import 'leaflet.markercluster/dist/MarkerCluster.css';
+import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
+
+
 
 
 // Component to scroll to the top of the page on route change.
@@ -67,7 +73,7 @@ const App = () => {
             {/* Hide Navbar and Footer on admin and owner dashboard paths */}
             {!isDashboardPath && <Navbar />}
 
-            <Routes>
+            <Routes >
                 <Route path='/' element={<Home />} />
                 <Route path='/car-details/:id' element={<CarDetails />} />
                 <Route path='/Services' element={<Services />} />
@@ -82,6 +88,8 @@ const App = () => {
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/reset-password/:token" element={<ResetPassword />} />
                 <Route path="/login" element={<Login />} />
+                <Route path="/vendor/:id" element={<VendorServices />} />
+
 
 
 

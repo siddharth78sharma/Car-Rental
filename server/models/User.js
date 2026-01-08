@@ -13,6 +13,10 @@ const vendorSchema = new mongoose.Schema({
   website: { type: String },
   gstNumber: { type: String }, // optional tax ID
   logo: { type: String }, // vendor store logo image URL
+  shopCoords: {
+    lat: { type: Number },
+    lng: { type: Number },
+  },
 }, { _id: false });
 
 const userSchema = new mongoose.Schema({

@@ -136,7 +136,7 @@ const ContactUs = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-16 px-6 font-sans">
+    <div className="min-h-screen bg-gray-50 py-16 px-6 font-sans pt-24">
       {/* Header Section */}
       <header className="text-center mb-16">
         <motion.h1

@@ -193,12 +193,40 @@ const Dashboard = () => {
     monthlyRevenue: 0,
   });
 
-  const DashboardCards = [
-    { title: "Total Items", value: data.totalItems, icon: assets.itemIconColored, color: 'bg-blue-500/10 text-blue-600' },
-    { title: "Total Bookings", value: data.totalBookings, icon: assets.listIconColored, color: 'bg-green-500/10 text-green-600' },
-    { title: "Pending", value: data.pendingBookings, icon: assets.cautionIconColored, color: 'bg-yellow-500/10 text-yellow-600' },
-    { title: "Confirmed", value: data.confirmedBookings, icon: assets.listIconColored, color: 'bg-purple-500/10 text-purple-600' },
-  ];
+     const DashboardCards = [
+  {
+    title: "Total Items",
+    value: data.totalItems,
+    icon: assets.itemIconColored,
+    bg: "from-sky-500 to-blue-600",
+  },
+  {
+    title: "Total Bookings",
+    value: data.totalBookings,
+    icon: assets.listIconColored,
+    bg: "from-emerald-500 to-green-600",
+  },
+  {
+    title: "Pending Bookings",
+    value: data.pendingBookings,
+    icon: assets.cautionIconColored,
+    bg: "from-amber-400 to-yellow-500",
+  },
+  {
+    title: "Confirmed Bookings",
+    value: data.confirmedBookings,
+    icon: assets.listIconColored,
+    bg: "from-violet-500 to-purple-600",
+  },
+];
+
+
+  // const DashboardCards = [
+  //   { title: "Total Items", value: data.totalItems, icon: assets.itemIconColored, color: 'bg-blue-500/10 text-blue-600' },
+  //   { title: "Total Bookings", value: data.totalBookings, icon: assets.listIconColored, color: 'bg-green-500/10 text-green-600' },
+  //   { title: "Pending", value: data.pendingBookings, icon: assets.cautionIconColored, color: 'bg-yellow-500/10 text-yellow-600' },
+  //   { title: "Confirmed", value: data.confirmedBookings, icon: assets.listIconColored, color: 'bg-purple-500/10 text-purple-600' },
+  // ];
 
   const fetchDashboardData = async () => {
     try {
@@ -251,7 +279,37 @@ const Dashboard = () => {
       </header>
 
       {/* Dashboard Cards */}
-      <section className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10'>
+      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+  {DashboardCards.map((card, index) => (
+    <motion.div
+      key={index}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.1 }}
+      className="relative overflow-hidden rounded-2xl bg-white border border-gray-100 shadow-md hover:shadow-xl transition-all"
+    >
+      {/* Gradient strip */}
+      <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${card.bg}`} />
+
+      <div className="p-6 flex items-center gap-4">
+        <div
+          className={`flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-br ${card.bg} shadow-md`}
+        >
+          <img src={card.icon} alt={card.title} className="w-7 h-7 brightness-200" />
+        </div>
+
+        <div>
+          <p className="text-sm text-gray-500 font-medium">{card.title}</p>
+          <p className="text-3xl font-bold text-gray-900">{card.value}</p>
+        </div>
+      </div>
+    </motion.div>
+  ))}
+</section>
+
+
+
+      {/* <section className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10'>
         {DashboardCards.map((card, index) => (
           <motion.div
             key={index}
@@ -267,7 +325,7 @@ const Dashboard = () => {
             <p className='text-3xl font-extrabold text-gray-900 mt-1'>{card.value}</p>
           </motion.div>
         ))}
-      </section>
+      </section> */}
 
       {/* Recent Bookings + Revenue */}
       <section className='flex flex-col lg:flex-row gap-6'>
@@ -290,7 +348,7 @@ const Dashboard = () => {
                   <th className='px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase'>Date</th>
                   <th className='px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase'>Amount</th>
                   <th className='px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase'>Status</th>
-                  <th className='px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase'>Actions</th>
+                  {/* <th className='px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase'>Actions</th> */}
                 </tr>
               </thead>
               <tbody className='bg-white divide-y divide-gray-200'>
@@ -309,7 +367,7 @@ const Dashboard = () => {
                           {booking.status}
                         </span>
                       </td>
-                      <td className='px-6 py-4'>
+                      {/* <td className='px-6 py-4'>
                         {booking.status !== 'confirmed' && (
                           <button
                             onClick={() => handleChangeStatus(booking._id, 'confirmed')}
@@ -318,7 +376,7 @@ const Dashboard = () => {
                             Confirm
                           </button>
                         )}
-                      </td>
+                      </td> */}
                     </tr>
                   ))
                 ) : (

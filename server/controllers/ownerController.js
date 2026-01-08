@@ -3,6 +3,7 @@ import imagekit from "../configs/imageKit.js"; // Import your ImageKit config
 import Booking from "../models/Booking.js";
 import Item from "../models/Car.js"; // Renamed from Car to be generic
 import User from "../models/User.js";
+import { geocodeVendorAddress } from "./mapController.js";
 
 // api to change role of user
 export const changeRoleToOwner = async (req, res) => {
@@ -349,4 +350,29 @@ export const getItemDetails = async (req, res) => {
         // Handle case where ID format is invalid
         res.status(500).json({ success: false, message: "Server error fetching item details" });
     }
+};
+
+export const getVendorServices = async (req, res) => {
+  try {
+    const vendorId = req.params.id;
+
+    // Get vendor details
+    const vendor = await User.findById(vendorId);
+    if (!vendor) {
+      return res.status(404).json({ success: false, message: "Vendor not found" });
+    }
+
+    // Fetch items/services created by this vendor
+    const services = await Item.find({ owner: vendorId });
+
+    res.status(200).json({
+      success: true,
+      vendor,
+      services,
+    });
+
+  } catch (error) {
+    console.error("Error fetching vendor services:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
 };
