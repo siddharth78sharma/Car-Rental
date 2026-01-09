@@ -45,7 +45,7 @@ const Hero = () => {
             whileHover={{ scale: 1.05 }}
             src={assets.logo}
             alt="logo"
-            className="max-w-[220px] md:max-w-[260px] object-contain"
+            className="max-w-[220px] md:max-w-[180px] object-contain"
           />
         </Link>
 

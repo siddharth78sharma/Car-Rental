@@ -51,14 +51,14 @@ const Navbar = () => {
             <motion.div initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5 }} 
             // className={`flex items-center justify-between px-6 md:px-16 lg:px-24 xl:px-32 py-4 text-gray-600 border-b border-borderColor relative transition-all ${location.pathname === '/' && "bg-light"}`}>
             className={`flex items-center justify-between px-6 md:px-16 lg:px-24 xl:px-32 py-4 
-    text-white  
-    border-b border-white/20 
-    fixed top-0 left-0 w-full z-50
-    ${location.pathname !== '/' && "bg-white text-gray-600 border-borderColor"}
-     backdrop-blur-[6px] bg-white/0
-`}>
+               text-white  
+               border-b border-white/20 
+               fixed top-0 left-0 w-full z-50
+               ${location.pathname !== '/' && "bg-white text-gray-600 border-borderColor"}
+                backdrop-blur-[6px] bg-white/0
+              `}>
                 <Link to='/'>
-                    <motion.img whileHover={{ scale: 1.05 }} src={assets.logo} alt="logo" className="h-10 w-60" />
+                    <motion.img whileHover={{ scale: 1.05 }} src={assets.logo} alt="logo" className="h-10 w-50" />
                 </Link>
                 
                 <div className={`max-sm:fixed max-sm:h-screen max-sm:w-full max-sm:top-16 max-sm:border-t border-borderColor right-0 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-8 max-sm:p-4 transition-all duration-300 z-50 ${location.pathname === '/' ? " backdrop-blur-xl text-white" : " text-gray-700"} ${open ? "max-sm:translate-x-0" : "max-sm:translate-x-full"}`}>
